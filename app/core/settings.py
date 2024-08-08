@@ -1,8 +1,5 @@
-import os
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-env = os.getenv("ENV", "dev")
 env_file = ".env"
 
 
@@ -15,7 +12,7 @@ class Settings(BaseSettings):
 
     DEVICE: str
 
-    OPENAI_API_KEY: str
+    HF_TOKEN: str
 
     LANGCHAIN_TRACING_V2: str
     LANGCHAIN_API_KEY: str

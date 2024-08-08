@@ -1,47 +1,37 @@
-import os
+import logging
 from pathlib import Path
 
-import logging
-from logging.config import dictConfig
+
+LOG_DIRECTORY = Path("logs")
+Path.mkdir(LOG_DIRECTORY, exist_ok=True)
+LOG_FILE = LOG_DIRECTORY / "server.log"
 
 
-LOG_DIRECTORY = "logs"
-os.makedirs(LOG_DIRECTORY, exist_ok=True)
+def set_logger(name):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "encoding": "utf-8",
-    "formatters": {
-        "simple": {
-            "format": "[%(asctime)s]-[%(levelname)s|%(filename)s:%(lineno)s]-[%(message)s]",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        }
-    },
-    "handlers": {
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
-            "stream": "ext://sys.stdout",
-        },
-        "logfile": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "level": "DEBUG",
-            "formatter": "simple",
-            "maxBytes": 1024 * 1024 * 100,
-            "filename": Path(LOG_DIRECTORY) / "server.log",
-            "backupCount": 5,
-        },
-    },
-    "loggers": {
-        "intent_logger": {
-            "handlers": ["console", "logfile"],
-            "level": "INFO",
-        }
-    },
-}
+    formatter = logging.Formatter(
+        fmt="[%(asctime)s]-[%(levelname)s|%(filename)s:%(lineno)s]-[%(message)s]",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    # File handler
+    file_handler = logging.handlers.RotatingFileHandler(
+        LOG_FILE, maxBytes=1024 * 1024 * 100, backupCount=5
+    )
+    file_handler.setLevel(logging.DEBUG)
+
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    return logger
 
 
-logger = logging.getLogger("nerd_qa")
-dictConfig(LOGGING)
+logger = set_logger("nerdqa")

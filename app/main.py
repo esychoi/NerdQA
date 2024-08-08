@@ -2,9 +2,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 
 from core.middlewares import log_and_handle_exceptions
+from routers import router
+
 
 app = FastAPI()
 app.middleware("http")(log_and_handle_exceptions)
+app.include_router(router)
 
 
 @app.get("/")

@@ -3,4 +3,5 @@ __pycache__
 logs
 .vscode/
 .env
-nerdqavenv
+nerdqavenv/
+chroma_langchain_db/
