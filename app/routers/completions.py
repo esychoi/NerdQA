@@ -1,7 +1,8 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
-from schemas.completions import ChatCompletionSchema
-from services.completions import CompletionService
+from app.schemas.completions import ChatCompletionSchema
+from app.services.completions import CompletionService
 
 completion_router = APIRouter(prefix="/completion", tags=["Completion"])
 
@@ -11,4 +12,4 @@ def chat_completion(request: ChatCompletionSchema):
     system_prompt = request.system_prompt
     user_prompt = request.user_prompt
     response = CompletionService.chat_completion(system_prompt, user_prompt)
-    return response
+    return JSONResponse(status_code=200, content={"response": response})
