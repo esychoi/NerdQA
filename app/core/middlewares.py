@@ -22,23 +22,14 @@ async def log_and_handle_exceptions(request: Request, call_next: Callable):
     """
 
     try:
-        request_body = await request.body()
-        if request_body:
-            logger.info(f"Request: {request.method} {request.url} with input {json.loads(request_body)}")
-        else:
-            logger.info(f"Request: {request.method} {request.url}")
+        logger.info(f"Request: {request.method} {request.url}")
 
         start_time = time.time()
         response = await call_next(request)
         process_time = time.time() - start_time
 
-        response_body = b""
-        async for chunk in response.body_iterator:
-            response_body += chunk
-        logger.info(
-            f"Response: {response.status_code} | Time: {process_time:.2f}s for {request.method} {request.url} with output {response_body.decode()}"
-        )
-        return JSONResponse(status_code=response.status_code, content=json.loads(response_body))
+        logger.info(f"Response: {response.status_code} | Time: {process_time:.2f}s for {request.method} {request.url}")
+        return response
 
     except Exception as e:
         process_time = time.time() - start_time
