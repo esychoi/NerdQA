@@ -1,5 +1,7 @@
 import ollama
 
+from app.core.settings import settings
+
 
 class CompletionService:
     @staticmethod
@@ -9,5 +11,5 @@ class CompletionService:
             messages.append({"role": "system", "content": system_prompt})
         if user_prompt:
             messages.append({"role": "user", "content": user_prompt})
-        response = ollama.chat(model="qwen3:8b", messages=messages)
+        response = ollama.chat(model=settings.LLM_NAME, messages=messages)
         return response["message"]["content"]

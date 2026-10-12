@@ -10,12 +10,9 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
     )
 
-    DEVICE: str
+    LLM_NAME: str = "qwen3-embedding:0.6b"
 
-    HF_TOKEN: str
-
-    LANGCHAIN_TRACING_V2: str
-    LANGCHAIN_API_KEY: str
+    EMBEDDING_MODEL_NAME: str = "qwen3-embedding:0.6b"
 
 
 settings = Settings()
