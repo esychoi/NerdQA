@@ -9,6 +9,9 @@ API_URL = "http://localhost:8000"
 # Page configuration
 st.set_page_config(page_title="Nerd Bot", page_icon="🧙")
 
+# -------------------------
+# SIDE PANEL
+# -------------------------
 with st.sidebar:
     st.title("Nerd Bot")
     # Theme selection
@@ -51,7 +54,6 @@ if panel == "Chat":
 # DATABASE PANEL
 # -------------------------
 elif panel == "Database":
-    # Mock database data (TODO: replace with ChromaDB data later)
     try:
         response = requests.get(f"{API_URL}/documents/{THEME_MAPPING[theme]}", timeout=10)
         response.raise_for_status()
