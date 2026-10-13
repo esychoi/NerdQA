@@ -14,5 +14,7 @@ class Settings(BaseSettings):
 
     EMBEDDING_MODEL_NAME: str = "qwen3-embedding:0.6b"
 
+    CHROMADB_PATH: str
+
 
 settings = Settings()
