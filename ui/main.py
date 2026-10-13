@@ -1,5 +1,10 @@
 import pandas as pd
+import requests
 import streamlit as st
+
+# GLOBAL VARIABLES
+THEME_MAPPING = {"The Lord Of the Rings": "LOTR"}
+API_URL = "http://localhost:8000"
 
 # Page configuration
 st.set_page_config(page_title="Nerd Bot", page_icon="🧙")
@@ -7,7 +12,7 @@ st.set_page_config(page_title="Nerd Bot", page_icon="🧙")
 with st.sidebar:
     st.title("Nerd Bot")
     # Theme selection
-    theme = st.selectbox("Choose theme:", ["The Lord Of The Rings"])
+    theme = st.selectbox("Choose theme:", list(THEME_MAPPING.keys()))
 
     # Panel selection
     panel = st.radio("Choose a panel:", ["Chat", "Database"], horizontal=True)
@@ -47,30 +52,20 @@ if panel == "Chat":
 # -------------------------
 elif panel == "Database":
     # Mock database data (TODO: replace with ChromaDB data later)
-    data = [
-        {
-            "ID": "0",
-            "Metadata": {"source": "the_fellowship.txt", "page": 1},
-            "Text": "In a hole in the ground there lived a hobbit. \nThis was the beginning of an unexpected adventure.",
-        },
-        {
-            "ID": "1",
-            "Metadata": {"source": "the_fellowship.txt", "page": 2},
-            "Text": "The One Ring is an ancient and powerful artifact created by Sauron.",
-        },
-        {
-            "ID": "2",
-            "Metadata": {"source": "middle_earth.txt", "page": 5},
-            "Text": "The Fellowship travelled across Middle-earth to destroy the One Ring.",
-        },
-    ]
+    try:
+        response = requests.get(f"{API_URL}/documents/{THEME_MAPPING[theme]}", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        st.error(f"Failed to fetch documents from the API: {e}")
 
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(data["response"])
+    df = df.rename(columns={"ids": "ID", "documents": "Text", "metadatas": "Metadata"})
 
     df["Metadata"] = df["Metadata"].map(
         lambda metadata: "\n".join(f"{key}: {value}" for key, value in metadata.items())
     )
 
-    st.dataframe(df, hide_index=True, row_height=100)
+    st.dataframe(df, hide_index=True, column_order=["ID", "Metadata", "Text"], row_height=100)
 
-    st.caption(f"{len(df)} chunks in this collection (mock data).")
+    st.caption(f"{len(df)} chunks in this collection.")
