@@ -9,7 +9,5 @@ completion_router = APIRouter(prefix="/completion", tags=["Completion"])
 
 @completion_router.post("")
 def chat_completion(request: ChatCompletionSchema):
-    system_prompt = request.system_prompt
-    user_prompt = request.user_prompt
-    response = CompletionService.chat_completion(system_prompt, user_prompt)
+    response = CompletionService.chat_completion(request.system_prompt, request.user_prompt)
     return JSONResponse(status_code=200, content={"response": response})

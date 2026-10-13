@@ -5,7 +5,7 @@ from app.core.settings import settings
 
 class CompletionService:
     @staticmethod
-    def chat_completion(system_prompt: str, user_prompt: str):
+    def chat_completion(system_prompt: str = "", user_prompt: str = ""):
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
