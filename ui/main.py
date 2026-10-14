@@ -6,8 +6,22 @@ import streamlit as st
 THEME_MAPPING = {"The Lord Of the Rings": "LOTR"}
 API_URL = "http://localhost:8000"
 
+
+# UTILS FUNCTIONS
+def stream_answer(prompt: str):
+    with requests.post(
+        f"{API_URL}/completion", json={"user_prompt": prompt}, stream=True, timeout=(10, 300)
+    ) as response:
+        response.raise_for_status()
+        response.encoding = "utf-8"
+
+        for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
+            if chunk:
+                yield chunk
+
+
 # Page configuration
-st.set_page_config(page_title="Nerd Bot", page_icon="🧙")
+st.set_page_config(page_title="NerdBot", page_icon="🧙")
 
 # -------------------------
 # SIDE PANEL
@@ -38,18 +52,21 @@ if panel == "Chat":
     # React to user input
     if prompt := st.chat_input(f"Type your question here."):
         # Display and store user message
-        st.chat_message("user").markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-        # Call LLM
+        # Stream assistant response
         with st.chat_message("assistant"):
             with st.spinner("*NerdBot is thinking...*"):
-                response = requests.post(f"{API_URL}/completion", json={"user_prompt": prompt}, timeout=60)
-                answer = response.json()["response"]
+                try:
+                    answer = st.write_stream(stream_answer(prompt))
+                except requests.RequestException as e:
+                    st.error(f"Could not get a response from NerdBot: {e}")
+                    answer = None
 
-            st.markdown(answer)
-
-        st.session_state.messages.append({"role": "assistant", "content": answer})
+        if answer is not None:
+            st.session_state.messages.append({"role": "assistant", "content": answer})
 
 # -------------------------
 # DATABASE PANEL

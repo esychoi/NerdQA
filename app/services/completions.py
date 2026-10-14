@@ -11,5 +11,8 @@ class CompletionService:
             messages.append({"role": "system", "content": system_prompt})
         if user_prompt:
             messages.append({"role": "user", "content": user_prompt})
-        response = ollama.chat(model=settings.LLM_NAME, messages=messages)
-        return response["message"]["content"]
+        response_stream = ollama.chat(model=settings.LLM_NAME, messages=messages, stream=True)
+        for chunk in response_stream:
+            content = chunk["message"]["content"]
+            if content:
+                yield content
