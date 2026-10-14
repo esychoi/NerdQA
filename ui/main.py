@@ -41,14 +41,15 @@ if panel == "Chat":
         st.chat_message("user").markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
 
-        # Echo response (temporary)
-        response = f"Echo: {prompt}"
-
-        # Display and store assistant response
+        # Call LLM
         with st.chat_message("assistant"):
-            st.markdown(response)
+            with st.spinner("*NerdBot is thinking...*"):
+                response = requests.post(f"{API_URL}/completion", json={"user_prompt": prompt}, timeout=60)
+                answer = response.json()["response"]
 
-        st.session_state.messages.append({"role": "assistant", "content": response})
+            st.markdown(answer)
+
+        st.session_state.messages.append({"role": "assistant", "content": answer})
 
 # -------------------------
 # DATABASE PANEL
