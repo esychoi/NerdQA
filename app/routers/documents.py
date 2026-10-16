@@ -1,30 +1,30 @@
-from fastapi import APIRouter, HTTPException
+import json
+from typing import Any
 
-from services.documents import DocumentService
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import JSONResponse
+
+from app.services.documents import DocumentService
 
 document_router = APIRouter(prefix="/documents", tags=["Documents"])
 
 
-@document_router.get("")
-def read_document(db, file):
-    return "read_document"
-
-
-@document_router.post("")
-def create_document(type: str, name: str):
+@document_router.get("/{collection_name}")
+def get_collection(
+    collection_name: str,
+    ids: list[str] | None = Query(default=None),
+    where: str | None = Query(default=None),
+    limit: int | None = Query(default=None),
+    where_document: str | None = Query(default=None),
+):
     try:
-        return DocumentService.create(type, name)
-    except Exception as e:
+        where_filter = json.loads(where) if where else None
+        where_document_filter = json.loads(where_document) if where_document else None
+    except json.JSONDecodeError:
         raise HTTPException(
-            status_code=400, detail=f"Error occured when creating document: {e}"
+            status_code=400,
+            detail="where and where_document must be valid JSON",
         )
 
-
-@document_router.put("")
-def update_document(db, file):
-    return "update_document"
-
-
-@document_router.delete("")
-def delete_document(db, file):
-    return "delete_document"
+    result = DocumentService.get_collection(collection_name, ids, where_filter, limit, where_document_filter)
+    return JSONResponse(status_code=200, content={"response": result})

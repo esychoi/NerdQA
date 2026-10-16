@@ -1,7 +1,8 @@
 .idea/
 __pycache__
 logs
-.vscode/
 .env
-nerdqavenv/
-chroma_langchain_db/
+.venv/
+.vscode/
+chroma_db/
+apicache/

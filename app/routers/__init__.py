@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from .completions import completion_router
-from .documents import document_router
+from app.routers.completions import completion_router
+from app.routers.documents import document_router
 
 router = APIRouter(prefix="")
 
