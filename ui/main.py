@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 import requests
 import streamlit as st
@@ -8,13 +10,15 @@ API_URL = "http://localhost:8000"
 
 
 # UTILS FUNCTIONS
-def stream_answer(prompt: str):
+def stream_answer(theme: str, user_prompt: str, k: int = 4, filter: dict[str, Any] | None = None):
     with requests.post(
-        f"{API_URL}/completion", json={"user_prompt": prompt}, stream=True, timeout=(10, 300)
+        f"{API_URL}/completion/ragchat/{theme}",
+        json={"user_prompt": user_prompt, "k": k, "filter": filter},
+        stream=True,
+        timeout=(10, 300),
     ) as response:
         response.raise_for_status()
         response.encoding = "utf-8"
-
         for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
             if chunk:
                 yield chunk
@@ -50,17 +54,17 @@ if panel == "Chat":
             st.markdown(message["content"])
 
     # React to user input
-    if prompt := st.chat_input(f"Type your question here."):
+    if user_prompt := st.chat_input(f"Type your question here."):
         # Display and store user message
-        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.messages.append({"role": "user", "content": user_prompt})
         with st.chat_message("user"):
-            st.markdown(prompt)
+            st.markdown(user_prompt)
 
         # Stream assistant response
         with st.chat_message("assistant"):
             with st.spinner("*NerdBot is thinking...*"):
                 try:
-                    answer = st.write_stream(stream_answer(prompt))
+                    answer = st.write_stream(stream_answer(THEME_MAPPING[theme], user_prompt))
                 except requests.RequestException as e:
                     st.error(f"Could not get a response from NerdBot: {e}")
                     answer = None
