@@ -6,3 +6,4 @@ logs
 .vscode/
 chroma_db/
 apicache/
+throttle.ctrl
